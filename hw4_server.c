@@ -71,33 +71,6 @@ int main(int argc, char *argv[])
             return ERROR;
         }
 
-        //////////////////////////////////////////////////////////////
-        // /* init line */
-        // memset(line, 0x0, MAX_MSG);
-
-        // /* receive segments */
-        // memset(sendBuff, 0, sizeof(sendBuff));
-
-        // while (read_line(newSd, line) != ERROR)
-        // {
-        //     printf("%s: received from %s:TCP%d : %s\n", argv[0],
-        //            inet_ntoa(cliAddr.sin_addr),
-        //            ntohs(cliAddr.sin_port), line);
-        //     fflush(stdout); // Ensure immediate output
-
-        //     // send to client that server has recieved the message
-        //     snprintf(sendBuff, sizeof(sendBuff), "Server received");
-        //     write(newSd, sendBuff, strlen(sendBuff));
-
-        //     /* init line */
-        //     memset(line, 0x0, MAX_MSG);
-        //     memset(sendBuff, 0, sizeof(sendBuff));
-
-        // } /* while(read_line) */
-        // printf("closed\n");
-        // fflush(stdout); // Flush the output buffer
-        //////////////////////////////////////////////////////////////
-
         // read from client
         char recvBuff[1024];
         memset(recvBuff, 0, sizeof(recvBuff));
@@ -117,6 +90,14 @@ int main(int argc, char *argv[])
                    ntohs(cliAddr.sin_port), recvBuff);
         }
 
+        char *token = strtok(recvBuff, " ");
+        while(token != NULL){
+            printf("Token: %s\n", token);
+            token = strtok(NULL, " ");
+        }
+
+        // end read from client 
+
         // send response to client
         char sendBuff[1024];
         memset(sendBuff, 0, sizeof(sendBuff));
@@ -125,6 +106,7 @@ int main(int argc, char *argv[])
         rc = send(newSd, sendBuff, sizeof(sendBuff), 0);
 
         close(newSd);
+        // end send response to client
 
     } /* while (1) */
 }
