@@ -94,7 +94,12 @@ int main(int argc, char *argv[])
 
         // print name and surname
         printf("name: %s %s\n", tokens[0], tokens[1]);
-        
+
+        // get birth date and convert to A.D.
+        char birthdate[9];
+        strcpy(birthdate, tokens[2]);
+        printf("birthdate: %s\n", birthdate);
+
         // end read from client //
 
 
