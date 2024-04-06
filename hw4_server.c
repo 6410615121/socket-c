@@ -71,7 +71,7 @@ int main(int argc, char *argv[])
             return ERROR;
         }
 
-        // read from client
+        // read from client //
         char recvBuff[1024];
         memset(recvBuff, 0, sizeof(recvBuff));
 
@@ -90,23 +90,33 @@ int main(int argc, char *argv[])
                    ntohs(cliAddr.sin_port), recvBuff);
         }
 
+        // keep 
         char *token = strtok(recvBuff, " ");
-        while(token != NULL){
-            printf("Token: %s\n", token);
+        char *tokens[10];
+        int token_count = 0;
+        while (token != NULL) {
+            tokens[token_count] = token;
+            token_count++;
+
             token = strtok(NULL, " ");
         }
 
-        // end read from client 
+        // print name and surname
+        printf("name: %s %s\n", tokens[0], tokens[1]);
 
-        // send response to client
+        // end read from client //
+
+
+        // send response to client //
         char sendBuff[1024];
         memset(sendBuff, 0, sizeof(sendBuff));
 
         strcpy(sendBuff, "Server recieved");
         rc = send(newSd, sendBuff, sizeof(sendBuff), 0);
+        printf("'%s' is sent\n", sendBuff);
 
         close(newSd);
-        // end send response to client
+        // end send response to client //
 
     } /* while (1) */
 }
