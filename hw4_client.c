@@ -18,9 +18,6 @@ int main(int argc, char *argv[])
     struct sockaddr_in localAddr, servAddr;
     struct hostent *h;
 
-    // for recieve message from server
-    char recvBuff[1024];
-    memset(recvBuff, '0', sizeof(recvBuff));
 
     if (argc < 3)
     {
@@ -68,20 +65,32 @@ int main(int argc, char *argv[])
         exit(1);
     }
 
+    char sendBuff[1025];
+    memset(sendBuff, 0 ,sizeof(sendBuff));
+
     for (i = 2; i < argc; i++)
     {
-
-        rc = send(sd, argv[i], strlen(argv[i]) + 1, 0);
-
-        if (rc < 0)
-        {
-            perror("cannot send data ");
-            close(sd);
-            exit(1);
-        }
-
-        printf("%s: data%u sent (%s)\n", argv[0], i - 1, argv[i]);
+        // rc = send(sd, argv[i], strlen(argv[i]) + 1, 0);
+        strcat(sendBuff, argv[i]);
+        strcat(sendBuff, " ");
     }
+
+    // send sendBuffer to server
+    rc = send(sd, sendBuff, strlen(sendBuff), 0);
+    if (rc < 0)
+    {
+        perror("cannot send data ");
+        close(sd);
+        exit(1);
+    }
+    printf("data sent: %s\n", sendBuff);
+    
+
+
+
+    // for recieve message from server
+    char recvBuff[1024];
+    memset(recvBuff, '0', sizeof(recvBuff));
 
     // added for recieving message from server
     int n;
