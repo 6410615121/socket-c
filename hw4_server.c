@@ -98,6 +98,7 @@ int main(int argc, char *argv[])
         // get birth date and convert to A.D.
         char birthdate[9];
         strcpy(birthdate, tokens[2]);
+        birthdate[8] = '\0';
         printf("birthdate: %s\n", birthdate);
 
         char year_char[5];
@@ -119,7 +120,7 @@ int main(int argc, char *argv[])
 
         memset(sendBuff, 0, sizeof(sendBuff));
 
-         // send converted year
+        // send converted year
         sprintf(sendBuff, "%i", year_int);
         rc = send(newSd, sendBuff, sizeof(sendBuff), 0);
         printf("'%s' is sent\n", sendBuff);

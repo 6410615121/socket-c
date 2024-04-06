@@ -11,12 +11,16 @@
 #define SERVER_PORT 15121
 #define MAX_MSG 100
 
+char *read_server(int newSd);
+
 int main(int argc, char *argv[])
 {
 
     int sd, rc, i;
     struct sockaddr_in localAddr, servAddr;
     struct hostent *h;
+    char recvBuff[1024];
+    char sendBuff[1024];
 
     if (argc < 3)
     {
@@ -64,9 +68,8 @@ int main(int argc, char *argv[])
         exit(1);
     }
 
-    char sendBuff[1025];
+    // send args to server //
     memset(sendBuff, 0, sizeof(sendBuff));
-
     for (i = 2; i < argc; i++)
     {
         // rc = send(sd, argv[i], strlen(argv[i]) + 1, 0);
@@ -75,33 +78,65 @@ int main(int argc, char *argv[])
     }
 
     // send sendBuffer to server
-    // printf("message to be printed:%s", sendBuff);
     rc = send(sd, sendBuff, strlen(sendBuff), 0);
-    if (rc < 0)
-    {
-        perror("cannot send data ");
-        close(sd);
-        exit(1);
-    }
     printf("data sent: %s\n", sendBuff);
 
     // for recieve message from server //
-    char recvBuff[1024];
-    memset(recvBuff, 0, sizeof(recvBuff));
+    // Receive responses from server
+    strcpy(recvBuff, read_server(sd));
+    if (recvBuff == NULL) {
+        printf("Error receiving response from server\n");
+        exit(1);
+    }
+    printf("Received from server1: '%s'\n", recvBuff);
 
-    rc = read(sd, recvBuff, sizeof(recvBuff));
-    if (rc < 0)
-    {
-        perror("Error reading from socket");
+    strcpy(recvBuff, read_server(sd));
+    if (recvBuff == NULL) {
+        printf("Error receiving response from server\n");
+        exit(1);
     }
-    else if (rc > 0)
-    {
-        // Null-terminate
-        recvBuff[rc] = '\0';
-        printf("Received from server: %s\n", recvBuff);
-    }
+    printf("Received from server2: '%s'\n", recvBuff);
+
+
+    // // read response
+    // strcpy(recvBuff, read_server(sd));
+    // printf("Received from server: %s\n", recvBuff);
+
+    // // read year
+    // strcpy(recvBuff, read_server(sd));
+    // printf("Received from server: %s\n", recvBuff);
+
+    
+
 
     close(sd);
 
     return 0;
+}
+
+char *read_server(int newSd) {
+    char recvBuff[1024];
+    memset(recvBuff, 0, sizeof(recvBuff));
+
+    int rc = read(newSd, recvBuff, sizeof(recvBuff) - 1);
+    if (rc < 0) {
+        perror("Error reading from socket");
+        return NULL;
+    } else if (rc == 0) {
+        printf("Connection closed by client\n");
+        return NULL;
+    } else {
+        // Allocate memory for the received string (including null terminator)
+        char *received_data = malloc(rc + 1);
+        if (received_data == NULL) {
+            perror("Failed to allocate memory for received data");
+            return NULL;
+        }
+        
+        // Copy the received data into the dynamically allocated memory
+        memcpy(received_data, recvBuff, rc);
+        received_data[rc] = '\0'; // Null-terminate the string
+        
+        return received_data;
+    }
 }
