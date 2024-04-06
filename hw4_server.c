@@ -47,12 +47,12 @@ int main(int argc, char *argv[])
     servAddr.sin_port = htons(SERVER_PORT);
 
     // Enable Socket Reuse
-    // int opt = 1;
-    // if (setsockopt(sd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0)
-    // {
-    //     perror("setsockopt");
-    //     return ERROR;
-    // }
+    int opt = 1;
+    if (setsockopt(sd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0)
+    {
+        perror("setsockopt");
+        return ERROR;
+    }
 
     if (bind(sd, (struct sockaddr *)&servAddr, sizeof(servAddr)) < 0)
     {
@@ -100,13 +100,27 @@ int main(int argc, char *argv[])
         strcpy(birthdate, tokens[2]);
         printf("birthdate: %s\n", birthdate);
 
+        char year_char[5];
+        strcpy(year_char, birthdate + 4);
+
+        int year_int = atoi(year_char);
+        year_int = year_int - 543; // convert to A.D.
+        printf("year: %i\n", year_int);
         // end read from client //
 
 
         // send response to client //
         memset(sendBuff, 0, sizeof(sendBuff));
 
+        // send "Server recieved"
         strcpy(sendBuff, "Server recieved");
+        rc = send(newSd, sendBuff, sizeof(sendBuff), 0);
+        printf("'%s' is sent\n", sendBuff);
+
+        memset(sendBuff, 0, sizeof(sendBuff));
+
+         // send converted year
+        sprintf(sendBuff, "%i", year_int);
         rc = send(newSd, sendBuff, sizeof(sendBuff), 0);
         printf("'%s' is sent\n", sendBuff);
 
