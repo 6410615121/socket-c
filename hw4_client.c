@@ -18,7 +18,6 @@ int main(int argc, char *argv[])
     struct sockaddr_in localAddr, servAddr;
     struct hostent *h;
 
-
     if (argc < 3)
     {
         printf("usage: %s <server> <data1> <data2> ... <dataN>\n", argv[0]);
@@ -66,7 +65,7 @@ int main(int argc, char *argv[])
     }
 
     char sendBuff[1025];
-    memset(sendBuff, 0 ,sizeof(sendBuff));
+    memset(sendBuff, 0, sizeof(sendBuff));
 
     for (i = 2; i < argc; i++)
     {
@@ -76,6 +75,7 @@ int main(int argc, char *argv[])
     }
 
     // send sendBuffer to server
+    // printf("message to be printed:%s", sendBuff);
     rc = send(sd, sendBuff, strlen(sendBuff), 0);
     if (rc < 0)
     {
@@ -84,26 +84,24 @@ int main(int argc, char *argv[])
         exit(1);
     }
     printf("data sent: %s\n", sendBuff);
-    
 
-
-
-    // for recieve message from server
+    // for recieve message from server //
     char recvBuff[1024];
-    memset(recvBuff, '0', sizeof(recvBuff));
+    memset(recvBuff, 0, sizeof(recvBuff));
 
-    // added for recieving message from server
-    int n;
-    while ((n = read(sd, recvBuff, sizeof(recvBuff) - 1)) > 0)
-    {
-        recvBuff[n] = '\0'; // Ensure null-termination after reading
-        printf("Received from server: %s\n", recvBuff);
-    }
-
-    if (n < 0)
+    rc = read(sd, recvBuff, sizeof(recvBuff));
+    if (rc < 0)
     {
         perror("Error reading from socket");
     }
+    else if (rc > 0)
+    {
+        // Null-terminate
+        recvBuff[rc] = '\0';
+        printf("Received from server: %s\n", recvBuff);
+    }
+
+    close(sd);
 
     return 0;
 }

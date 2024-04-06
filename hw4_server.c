@@ -28,7 +28,6 @@ int main(int argc, char *argv[])
 
     struct sockaddr_in cliAddr, servAddr;
     char line[MAX_MSG];
-    char sendBuff[1025];
 
     /* create socket */
     sd = socket(AF_INET, SOCK_STREAM, 0);
@@ -43,6 +42,14 @@ int main(int argc, char *argv[])
     servAddr.sin_addr.s_addr = htonl(INADDR_ANY);
     servAddr.sin_port = htons(SERVER_PORT);
 
+    // Enable Socket Reuse
+    // int opt = 1;
+    // if (setsockopt(sd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0)
+    // {
+    //     perror("setsockopt");
+    //     return ERROR;
+    // }
+
     if (bind(sd, (struct sockaddr *)&servAddr, sizeof(servAddr)) < 0)
     {
         perror("cannot bind port ");
@@ -53,8 +60,8 @@ int main(int argc, char *argv[])
 
     while (1)
     {
-
         printf("%s: waiting for data on port TCP %u\n", argv[0], SERVER_PORT);
+        fflush(stdout); // Flush the output buffer
 
         cliLen = sizeof(cliAddr);
         newSd = accept(sd, (struct sockaddr *)&cliAddr, &cliLen);
@@ -64,29 +71,61 @@ int main(int argc, char *argv[])
             return ERROR;
         }
 
-        /* init line */
-        memset(line, 0x0, MAX_MSG);
+        //////////////////////////////////////////////////////////////
+        // /* init line */
+        // memset(line, 0x0, MAX_MSG);
 
-        /* receive segments */
-        memset(sendBuff, '0', sizeof(sendBuff));
-        while (read_line(newSd, line) != ERROR)
+        // /* receive segments */
+        // memset(sendBuff, 0, sizeof(sendBuff));
+
+        // while (read_line(newSd, line) != ERROR)
+        // {
+        //     printf("%s: received from %s:TCP%d : %s\n", argv[0],
+        //            inet_ntoa(cliAddr.sin_addr),
+        //            ntohs(cliAddr.sin_port), line);
+        //     fflush(stdout); // Ensure immediate output
+
+        //     // send to client that server has recieved the message
+        //     snprintf(sendBuff, sizeof(sendBuff), "Server received");
+        //     write(newSd, sendBuff, strlen(sendBuff));
+
+        //     /* init line */
+        //     memset(line, 0x0, MAX_MSG);
+        //     memset(sendBuff, 0, sizeof(sendBuff));
+
+        // } /* while(read_line) */
+        // printf("closed\n");
+        // fflush(stdout); // Flush the output buffer
+        //////////////////////////////////////////////////////////////
+
+        // read from client
+        char recvBuff[1024];
+        memset(recvBuff, 0, sizeof(recvBuff));
+
+        int rc = read(newSd, recvBuff, sizeof(recvBuff));
+        if (rc < 0)
         {
+            perror("Error reading from socket");
+        }
+        else if (rc > 0)
+        {
+            // Null-terminate
+            recvBuff[rc] = '\0';
 
             printf("%s: received from %s:TCP%d : %s\n", argv[0],
                    inet_ntoa(cliAddr.sin_addr),
-                   ntohs(cliAddr.sin_port), line);
+                   ntohs(cliAddr.sin_port), recvBuff);
+        }
 
-            /* init line */
-            memset(line, 0x0, MAX_MSG);
+        // send response to client
+        char sendBuff[1024];
+        memset(sendBuff, 0, sizeof(sendBuff));
 
-            // added for sending message to client
-            snprintf(sendBuff, sizeof(sendBuff), "hello message received");
-            sendBuff[strlen(sendBuff)] = '\0';  // Null-terminate the string
-            write(newSd, sendBuff, strlen(sendBuff));
-            
+        strcpy(sendBuff, "Server recieved");
+        rc = send(newSd, sendBuff, sizeof(sendBuff), 0);
 
-        } /* while(read_line) */
         close(newSd);
+
     } /* while (1) */
 }
 
