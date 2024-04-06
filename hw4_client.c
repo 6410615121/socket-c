@@ -4,6 +4,8 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
 #include <unistd.h> /* close */
 
 #define SERVER_PORT 15121
@@ -18,7 +20,7 @@ int main(int argc, char *argv[])
 
     // for recieve message from server
     char recvBuff[1024];
-    memset(recvBuff, '0',sizeof(recvBuff));
+    memset(recvBuff, '0', sizeof(recvBuff));
 
     if (argc < 3)
     {
@@ -66,7 +68,6 @@ int main(int argc, char *argv[])
         exit(1);
     }
 
-
     for (i = 2; i < argc; i++)
     {
 
@@ -82,15 +83,18 @@ int main(int argc, char *argv[])
         printf("%s: data%u sent (%s)\n", argv[0], i - 1, argv[i]);
     }
 
+    // added for recieving message from server
     int n;
-    while ( (n = read(sd, recvBuff, sizeof(recvBuff)-1)) > 0)
+    while ((n = read(sd, recvBuff, sizeof(recvBuff) - 1)) > 0)
     {
-        recvBuff[n] = 0;
-        if(fputs(recvBuff, stdout) == EOF)
-        {
-            printf("\n Error : Fputs error\n");
-        }
-    } 
+        recvBuff[n] = '\0'; // Ensure null-termination after reading
+        printf("Received from server: %s\n", recvBuff);
+    }
+
+    if (n < 0)
+    {
+        perror("Error reading from socket");
+    }
 
     return 0;
 }
