@@ -137,7 +137,7 @@ char *read_client(int newSd) {
     char recvBuff[1024];
     memset(recvBuff, 0, sizeof(recvBuff));
 
-    int rc = read(newSd, recvBuff, sizeof(recvBuff) - 1);
+    int rc = read(newSd, recvBuff, sizeof(recvBuff));
     if (rc < 0) {
         perror("Error reading from socket");
         return NULL;

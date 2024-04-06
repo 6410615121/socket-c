@@ -8,7 +8,8 @@
 #include <stdlib.h>
 #include <unistd.h> /* close */
 
-#define SERVER_PORT 15121
+#define PORT1 15121
+#define PORT2 25121
 #define MAX_MSG 100
 
 char *read_server(int newSd);
@@ -37,7 +38,7 @@ int main(int argc, char *argv[])
 
     servAddr.sin_family = h->h_addrtype;
     memcpy((char *)&servAddr.sin_addr.s_addr, h->h_addr_list[0], h->h_length);
-    servAddr.sin_port = htons(SERVER_PORT);
+    servAddr.sin_port = htons(PORT1);
 
     /* create socket */
     sd = socket(AF_INET, SOCK_STREAM, 0);
@@ -50,12 +51,12 @@ int main(int argc, char *argv[])
     /* bind any port number */
     localAddr.sin_family = AF_INET;
     localAddr.sin_addr.s_addr = htonl(INADDR_ANY);
-    localAddr.sin_port = htons(0);
+    localAddr.sin_port = htons(PORT1);
 
     rc = bind(sd, (struct sockaddr *)&localAddr, sizeof(localAddr));
     if (rc < 0)
     {
-        printf("%s: cannot bind port TCP %u\n", argv[0], SERVER_PORT);
+        printf("%s: cannot bind port TCP %u\n", argv[0], PORT1);
         perror("error ");
         exit(1);
     }
@@ -118,7 +119,7 @@ char *read_server(int newSd) {
     char recvBuff[1024];
     memset(recvBuff, 0, sizeof(recvBuff));
 
-    int rc = read(newSd, recvBuff, sizeof(recvBuff) - 1);
+    int rc = read(newSd, recvBuff, sizeof(recvBuff));
     if (rc < 0) {
         perror("Error reading from socket");
         return NULL;
