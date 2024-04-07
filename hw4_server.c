@@ -26,7 +26,7 @@ char *read_client(int newSd);
 int main(int argc, char *argv[])
 {
 
-    int sd, newSd, cliLen, rc;
+    int sd1, sd2, newSd, cliLen, rc;
 
     struct sockaddr_in cliAddr, servAddr;
     char line[MAX_MSG];
@@ -37,8 +37,15 @@ int main(int argc, char *argv[])
 
     /* ------------------------------- connection ------------------------------- */
     /* create socket */
-    sd = socket(AF_INET, SOCK_STREAM, 0);
-    if (sd < 0)
+    sd1 = socket(AF_INET, SOCK_STREAM, 0);
+    sd2 = socket(AF_INET, SOCK_STREAM, 0);
+    if (sd1 < 0)
+    {
+        perror("cannot open socket ");
+        return ERROR;
+    }
+
+    if (sd2 < 0)
     {
         perror("cannot open socket ");
         return ERROR;
@@ -51,19 +58,34 @@ int main(int argc, char *argv[])
 
     // Enable Socket Reuse
     int opt = 1;
-    if (setsockopt(sd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0)
+    if (setsockopt(sd1, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0)
     {
         perror("setsockopt");
         return ERROR;
     }
 
-    if (bind(sd, (struct sockaddr *)&servAddr, sizeof(servAddr)) < 0)
+    if (setsockopt(sd2, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0)
+    {
+        perror("setsockopt");
+        return ERROR;
+    }
+
+    // bind
+    if (bind(sd1, (struct sockaddr *)&servAddr, sizeof(servAddr)) < 0)
     {
         perror("cannot bind port ");
         return ERROR;
     }
 
-    listen(sd, 5);
+    servAddr.sin_port = htons(SERVER_PORT2);
+    
+    if (bind(sd2, (struct sockaddr *)&servAddr, sizeof(servAddr)) < 0)
+    {
+        perror("cannot bind port ");
+        return ERROR;
+    }
+
+    listen(sd1, 5);
     /* -------------------------------------------------------------------------- */
 
     while (1)
@@ -72,7 +94,7 @@ int main(int argc, char *argv[])
         fflush(stdout); // Flush the output buffer
 
         cliLen = sizeof(cliAddr);
-        newSd = accept(sd, (struct sockaddr *)&cliAddr, &cliLen);
+        newSd = accept(sd1, (struct sockaddr *)&cliAddr, &cliLen);
         if (newSd < 0)
         {
             perror("cannot accept connection ");
