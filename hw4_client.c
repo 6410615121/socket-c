@@ -23,9 +23,9 @@ int main(int argc, char *argv[])
     char recvBuff[1024];
     char sendBuff[1024];
 
-    if (argc != 5)
+    if (argc != 2)
     {
-        printf("usage: %s <server> <name> <surname> <DDMMYYYY>\n", argv[0]);
+        printf("usage: %s <server>\n", argv[0]);
         exit(1);
     }
 
@@ -78,13 +78,24 @@ int main(int argc, char *argv[])
     /* -------------------------------------------------------------------------- */
 
     /* --------------------------- send args to server -------------------------- */
+    /* input */
+    char name[15];
+    char surname[15];
+    char birthday[9];
+
+    printf("Input name: ");
+    scanf("%s", &name);
+
+    printf("Input surname: ");
+    scanf("%s", &surname);
+
+    printf("Input birthday: ");
+    scanf("%s", &birthday);
+    /* end input */
+
+    // prepare sendBuffer
     memset(sendBuff, 0, sizeof(sendBuff));
-    for (i = 2; i < argc; i++)
-    {
-        // rc = send(sd, argv[i], strlen(argv[i]) + 1, 0);
-        strcat(sendBuff, argv[i]);
-        strcat(sendBuff, " ");
-    }
+    sprintf(sendBuff, "%s %s %s", name, surname, birthday);
 
     // send sendBuffer to server //
     rc = send(sd1, sendBuff, strlen(sendBuff), 0);
