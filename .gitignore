@@ -2,5 +2,11 @@
 /server
 /tcpClient
 /tcpServer
+
+client.c
+server.c
+tcpClient.c
+tcpServer.c
+
 /hw4_client
 /hw4_server
