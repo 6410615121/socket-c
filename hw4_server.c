@@ -122,9 +122,9 @@ int main(int argc, char *argv[])
 
         // keep name and birthdate in tokens
         char *token = strtok(recvBuff, " ");
-        char *tokens[10];
+        char *tokens[3];
         int token_count = 0;
-        while (token != NULL)
+        while (token != NULL && token_count < 3)
         {
             tokens[token_count] = token;
             token_count++;
