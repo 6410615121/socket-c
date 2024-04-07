@@ -3,10 +3,7 @@
 /tcpClient
 /tcpServer
 
-client.c
-server.c
-tcpClient.c
-tcpServer.c
+/bin
 
 /hw4_client
 /hw4_server
