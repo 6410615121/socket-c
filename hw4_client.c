@@ -17,8 +17,8 @@ char *read_server(int newSd);
 int main(int argc, char *argv[])
 {
 
-    int sd, rc, i;
-    struct sockaddr_in localAddr, servAddr;
+    int sd1, sd2, rc, i;
+    struct sockaddr_in localAddr, servAddr1, servAddr2;
     struct hostent *h;
     char recvBuff[1024];
     char sendBuff[1024];
@@ -37,20 +37,39 @@ int main(int argc, char *argv[])
     }
 
     /* -------------------------------- connetion ------------------------------- */
-    servAddr.sin_family = h->h_addrtype;
-    memcpy((char *)&servAddr.sin_addr.s_addr, h->h_addr_list[0], h->h_length);
-    servAddr.sin_port = htons(PORT1);
+    servAddr1.sin_family = h->h_addrtype;
+    memcpy((char *)&servAddr1.sin_addr.s_addr, h->h_addr_list[0], h->h_length);
+    servAddr1.sin_port = htons(PORT1);
+    
+    servAddr2.sin_family = h->h_addrtype;
+    memcpy((char *)&servAddr2.sin_addr.s_addr, h->h_addr_list[0], h->h_length);
+    servAddr2.sin_port = htons(PORT2);
+
 
     /* create socket */
-    sd = socket(AF_INET, SOCK_STREAM, 0);
-    if (sd < 0)
+    sd1 = socket(AF_INET, SOCK_STREAM, 0);
+    if (sd1 < 0)
+    {
+        perror("cannot open socket ");
+        exit(1);
+    }
+
+    sd2 = socket(AF_INET, SOCK_STREAM, 0);
+    if (sd2 < 0)
     {
         perror("cannot open socket ");
         exit(1);
     }
 
     /* connect to server */
-    rc = connect(sd, (struct sockaddr *)&servAddr, sizeof(servAddr));
+    rc = connect(sd1, (struct sockaddr *)&servAddr1, sizeof(servAddr1));
+    if (rc < 0)
+    {
+        perror("cannot connect ");
+        exit(1);
+    }
+
+    rc = connect(sd2, (struct sockaddr *)&servAddr2, sizeof(servAddr2));
     if (rc < 0)
     {
         perror("cannot connect ");
@@ -68,13 +87,13 @@ int main(int argc, char *argv[])
     }
 
     // send sendBuffer to server //
-    rc = send(sd, sendBuff, strlen(sendBuff), 0);
+    rc = send(sd1, sendBuff, strlen(sendBuff), 0);
     printf("data sent: %s\n", sendBuff);
     /* -------------------------------------------------------------------------- */
 
     /* ---------------------- recieve messages from server ---------------------- */
     // Receive responses from server
-    strcpy(recvBuff, read_server(sd));
+    strcpy(recvBuff, read_server(sd1));
     if (recvBuff == NULL)
     {
         printf("Error receiving response from server\n");
@@ -83,7 +102,7 @@ int main(int argc, char *argv[])
     printf("Received from server1: '%s'\n", recvBuff);
 
     // read year
-    strcpy(recvBuff, read_server(sd));
+    strcpy(recvBuff, read_server(sd1));
     if (recvBuff == NULL)
     {
         printf("Error receiving response from server\n");
@@ -91,7 +110,7 @@ int main(int argc, char *argv[])
     }
     printf("Received from server2: '%s'\n", recvBuff);
     /* -------------------------------------------------------------------------- */
-    close(sd);
+    close(sd1);
 
     return 0;
 }
