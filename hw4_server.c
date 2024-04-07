@@ -16,7 +16,8 @@
 #define ERROR 1
 
 #define END_LINE 0x0
-#define SERVER_PORT 15121
+#define SERVER_PORT1 15121
+#define SERVER_PORT2 25121
 #define MAX_MSG 100
 
 /* function readline */
@@ -44,7 +45,7 @@ int main(int argc, char *argv[])
     /* bind server port */
     servAddr.sin_family = AF_INET;
     servAddr.sin_addr.s_addr = htonl(INADDR_ANY);
-    servAddr.sin_port = htons(SERVER_PORT);
+    servAddr.sin_port = htons(SERVER_PORT1);
 
     // Enable Socket Reuse
     int opt = 1;
@@ -64,7 +65,7 @@ int main(int argc, char *argv[])
 
     while (1)
     {
-        printf("%s: waiting for data on port TCP %u\n", argv[0], SERVER_PORT);
+        printf("%s: waiting for data on port TCP %u\n", argv[0], SERVER_PORT1);
         fflush(stdout); // Flush the output buffer
 
         cliLen = sizeof(cliAddr);
@@ -78,14 +79,15 @@ int main(int argc, char *argv[])
         // read from client //
         strcpy(recvBuff, read_client(newSd)); // call read_client() which call read()
         printf("%s: received from %s:TCP%d : %s\n", argv[0],
-        inet_ntoa(cliAddr.sin_addr),
-        ntohs(cliAddr.sin_port), recvBuff);
+               inet_ntoa(cliAddr.sin_addr),
+               ntohs(cliAddr.sin_port), recvBuff);
 
         // keep name and birthdate in tokens
         char *token = strtok(recvBuff, " ");
         char *tokens[10];
         int token_count = 0;
-        while (token != NULL) {
+        while (token != NULL)
+        {
             tokens[token_count] = token;
             token_count++;
 
@@ -109,7 +111,6 @@ int main(int argc, char *argv[])
         printf("year: %i\n", year_int);
         // end read from client //
 
-
         // send response to client //
         memset(sendBuff, 0, sizeof(sendBuff));
 
@@ -131,32 +132,36 @@ int main(int argc, char *argv[])
     } /* while (1) */
 }
 
-
-
-char *read_client(int newSd) {
+char *read_client(int newSd)
+{
     char recvBuff[1024];
     memset(recvBuff, 0, sizeof(recvBuff));
 
     int rc = read(newSd, recvBuff, sizeof(recvBuff));
-    if (rc < 0) {
+    if (rc < 0)
+    {
         perror("Error reading from socket");
         return NULL;
-    } else if (rc == 0) {
+    }
+    else if (rc == 0)
+    {
         printf("Connection closed by client\n");
         return NULL;
-    } else {
+    }
+    else
+    {
         // Allocate memory for the received string (including null terminator)
         char *received_data = malloc(rc + 1);
-        if (received_data == NULL) {
+        if (received_data == NULL)
+        {
             perror("Failed to allocate memory for received data");
             return NULL;
         }
-        
+
         // Copy the received data into the dynamically allocated memory
         memcpy(received_data, recvBuff, rc);
         received_data[rc] = '\0'; // Null-terminate the string
-        
+
         return received_data;
     }
 }
-
