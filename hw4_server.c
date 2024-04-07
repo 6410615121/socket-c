@@ -26,9 +26,10 @@ char *read_client(int newSd);
 int main(int argc, char *argv[])
 {
 
-    int sd1, sd2, newSd, cliLen, rc;
+    int sd1, sd2, newSd1, newSd2, cliLen, rc;
 
-    struct sockaddr_in cliAddr, servAddr;
+    struct sockaddr_in cliAddr1, cliAddr2;
+    struct sockaddr_in servAddr1, servAddr2;
     char line[MAX_MSG];
 
     char recvBuff[1024];
@@ -52,9 +53,13 @@ int main(int argc, char *argv[])
     }
 
     /* bind server port */
-    servAddr.sin_family = AF_INET;
-    servAddr.sin_addr.s_addr = htonl(INADDR_ANY);
-    servAddr.sin_port = htons(SERVER_PORT1);
+    servAddr1.sin_family = AF_INET;
+    servAddr1.sin_addr.s_addr = htonl(INADDR_ANY);
+    servAddr1.sin_port = htons(SERVER_PORT1);
+
+    servAddr2.sin_family = AF_INET;
+    servAddr2.sin_addr.s_addr = htonl(INADDR_ANY);
+    servAddr2.sin_port = htons(SERVER_PORT2);
 
     // Enable Socket Reuse
     int opt = 1;
@@ -71,15 +76,13 @@ int main(int argc, char *argv[])
     }
 
     // bind
-    if (bind(sd1, (struct sockaddr *)&servAddr, sizeof(servAddr)) < 0)
+    if (bind(sd1, (struct sockaddr *)&servAddr1, sizeof(servAddr1)) < 0)
     {
         perror("cannot bind port ");
         return ERROR;
     }
 
-    servAddr.sin_port = htons(SERVER_PORT2);
-    
-    if (bind(sd2, (struct sockaddr *)&servAddr, sizeof(servAddr)) < 0)
+    if (bind(sd2, (struct sockaddr *)&servAddr2, sizeof(servAddr2)) < 0)
     {
         perror("cannot bind port ");
         return ERROR;
@@ -91,21 +94,30 @@ int main(int argc, char *argv[])
     while (1)
     {
         printf("%s: waiting for data on port TCP %u\n", argv[0], SERVER_PORT1);
+        printf("%s: waiting for data on port TCP %u\n", argv[0], SERVER_PORT2);
         fflush(stdout); // Flush the output buffer
 
-        cliLen = sizeof(cliAddr);
-        newSd = accept(sd1, (struct sockaddr *)&cliAddr, &cliLen);
-        if (newSd < 0)
+        cliLen = sizeof(cliAddr1);
+        newSd1 = accept(sd1, (struct sockaddr *)&cliAddr1, &cliLen);
+        if (newSd1 < 0)
         {
-            perror("cannot accept connection ");
+            perror("cannot accept connection1");
+            return ERROR;
+        }
+
+        cliLen = sizeof(cliAddr2);
+        newSd2 = accept(sd2, (struct sockaddr *)&cliAddr2, &cliLen);
+        if (newSd2 < 0)
+        {
+            perror("cannot accept connection2");
             return ERROR;
         }
 
         /* ---------------------------- read from client ---------------------------- */
-        strcpy(recvBuff, read_client(newSd)); // call read_client() which call read()
+        strcpy(recvBuff, read_client(newSd1)); // call read_client() which call read()
         printf("%s: received from %s:TCP%d : %s\n", argv[0],
-               inet_ntoa(cliAddr.sin_addr),
-               ntohs(cliAddr.sin_port), recvBuff);
+               inet_ntoa(cliAddr1.sin_addr),
+               ntohs(cliAddr1.sin_port), recvBuff);
 
         // keep name and birthdate in tokens
         char *token = strtok(recvBuff, " ");
@@ -141,17 +153,17 @@ int main(int argc, char *argv[])
 
         // send "Server recieved"
         strcpy(sendBuff, "Server recieved");
-        rc = send(newSd, sendBuff, sizeof(sendBuff), 0);
+        rc = send(newSd1, sendBuff, sizeof(sendBuff), 0);
         printf("'%s' is sent\n", sendBuff);
 
         memset(sendBuff, 0, sizeof(sendBuff));
 
         // send converted year
         sprintf(sendBuff, "%i", year_int);
-        rc = send(newSd, sendBuff, sizeof(sendBuff), 0);
+        rc = send(newSd1, sendBuff, sizeof(sendBuff), 0);
         printf("'%s' is sent\n", sendBuff);
 
-        close(newSd);
+        close(newSd1);
         /* -------------------------------------------------------------------------- */
 
     } /* while (1) */
