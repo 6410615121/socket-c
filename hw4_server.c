@@ -34,6 +34,8 @@ int main(int argc, char *argv[])
     char recvBuff[1024];
     char sendBuff[1024];
 
+
+    /* ------------------------------- connection ------------------------------- */
     /* create socket */
     sd = socket(AF_INET, SOCK_STREAM, 0);
     if (sd < 0)
@@ -62,6 +64,7 @@ int main(int argc, char *argv[])
     }
 
     listen(sd, 5);
+    /* -------------------------------------------------------------------------- */
 
     while (1)
     {
@@ -76,7 +79,7 @@ int main(int argc, char *argv[])
             return ERROR;
         }
 
-        // read from client //
+        /* ---------------------------- read from client ---------------------------- */
         strcpy(recvBuff, read_client(newSd)); // call read_client() which call read()
         printf("%s: received from %s:TCP%d : %s\n", argv[0],
                inet_ntoa(cliAddr.sin_addr),
@@ -109,9 +112,9 @@ int main(int argc, char *argv[])
         int year_int = atoi(year_char);
         year_int = year_int - 543; // convert to A.D.
         printf("year: %i\n", year_int);
-        // end read from client //
+        /* -------------------------------------------------------------------------- */
 
-        // send response to client //
+        /* ------------------------- send response to client ------------------------ */
         memset(sendBuff, 0, sizeof(sendBuff));
 
         // send "Server recieved"
@@ -127,11 +130,12 @@ int main(int argc, char *argv[])
         printf("'%s' is sent\n", sendBuff);
 
         close(newSd);
-        // end send response to client //
+        /* -------------------------------------------------------------------------- */
 
     } /* while (1) */
 }
 
+/* -------------------------------- functions ------------------------------- */
 char *read_client(int newSd)
 {
     char recvBuff[1024];
@@ -165,3 +169,4 @@ char *read_client(int newSd)
         return received_data;
     }
 }
+/* -------------------------------------------------------------------------- */
