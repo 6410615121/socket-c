@@ -152,23 +152,23 @@ int main(int argc, char *argv[])
         /* ------------------------- send response to client ------------------------ */
         memset(sendBuff, 0, sizeof(sendBuff));
 
-        // send "Server recieved" to port1
-        strcpy(sendBuff, "Server recieved");
+        // send "Server received" to port1
+        strcpy(sendBuff, "Server received");
         rc = send(newSd1, sendBuff, sizeof(sendBuff), 0);
-        printf("'%s' is sent\n", sendBuff);
+        printf("'%s' was sent\n", sendBuff);
 
         memset(sendBuff, 0, sizeof(sendBuff));
 
         // send converted year to port2
         sprintf(sendBuff, "%i", year_int);
         rc = send(newSd2, sendBuff, sizeof(sendBuff), 0);
-        printf("'%s' is sent\n", sendBuff);
+        printf("'%s' was sent\n", sendBuff);
         /* -------------------------------------------------------------------------- */
 
-        /* ------------------------ recieve "bye" from client ----------------------- */
-        // recieve from port2
+        /* ------------------------ received "bye" from client ----------------------- */
+        // received from port2
         strcpy(recvBuff, read_client(newSd2));
-        printf("'%s' is recieved\n", recvBuff);
+        printf("'%s' was received\n", recvBuff);
         /* -------------------------------------------------------------------------- */
 
         close(newSd1);

@@ -102,7 +102,7 @@ int main(int argc, char *argv[])
     printf("data sent: %s\n", sendBuff);
     /* -------------------------------------------------------------------------- */
 
-    /* ---------------------- recieve messages from server ---------------------- */
+    /* ---------------------- received messages from server ---------------------- */
     // Receive responses from port1
     strcpy(recvBuff, read_server(sd1));
     if (recvBuff == NULL)
