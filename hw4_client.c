@@ -23,9 +23,9 @@ int main(int argc, char *argv[])
     char recvBuff[1024];
     char sendBuff[1024];
 
-    if (argc < 3)
+    if (argc != 5)
     {
-        printf("usage: %s <server> <data1> <data2> ... <dataN>\n", argv[0]);
+        printf("usage: %s <server> <name> <surname> <DDMMYYYY>\n", argv[0]);
         exit(1);
     }
 
@@ -92,7 +92,7 @@ int main(int argc, char *argv[])
     /* -------------------------------------------------------------------------- */
 
     /* ---------------------- recieve messages from server ---------------------- */
-    // Receive responses from server
+    // Receive responses from port1
     strcpy(recvBuff, read_server(sd1));
     if (recvBuff == NULL)
     {
@@ -101,8 +101,8 @@ int main(int argc, char *argv[])
     }
     printf("Received from server1: '%s'\n", recvBuff);
 
-    // read year
-    strcpy(recvBuff, read_server(sd1));
+    // read year from port2
+    strcpy(recvBuff, read_server(sd2));
     if (recvBuff == NULL)
     {
         printf("Error receiving response from server\n");
@@ -110,7 +110,18 @@ int main(int argc, char *argv[])
     }
     printf("Received from server2: '%s'\n", recvBuff);
     /* -------------------------------------------------------------------------- */
+
+    /* ------------------------------- send "bye" ------------------------------- */
+    memset(sendBuff, 0, sizeof(sendBuff));
+
+    // send sendBuffer to server port2 //
+    strcat(sendBuff, "Bye");
+    rc = send(sd2, sendBuff, strlen(sendBuff), 0);
+    printf("data sent: %s\n", sendBuff);
+    /* -------------------------------------------------------------------------- */
+
     close(sd1);
+    close(sd2);
 
     return 0;
 }
