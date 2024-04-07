@@ -94,9 +94,8 @@ int main(int argc, char *argv[])
 
     while (1)
     {
-        printf("%s: waiting for data on port TCP %u\n", argv[0], SERVER_PORT1);
-        printf("%s: waiting for data on port TCP %u\n", argv[0], SERVER_PORT2);
-        fflush(stdout); // Flush the output buffer
+        // printf("%s: waiting for data on port TCP %u\n", argv[0], SERVER_PORT1);
+        // printf("%s: waiting for data on port TCP %u\n", argv[0], SERVER_PORT2);
 
         cliLen = sizeof(cliAddr1);
         newSd1 = accept(sd1, (struct sockaddr *)&cliAddr1, &cliLen);
@@ -116,9 +115,9 @@ int main(int argc, char *argv[])
 
         /* ---------------------------- read from client ---------------------------- */
         strcpy(recvBuff, read_client(newSd1)); // call read_client() which call read()
-        printf("%s: received from %s:TCP%d : %s\n", argv[0],
-               inet_ntoa(cliAddr1.sin_addr),
-               ntohs(cliAddr1.sin_port), recvBuff);
+        // printf("%s: received from %s:TCP%d : %s\n", argv[0],
+        //        inet_ntoa(cliAddr1.sin_addr),
+        //        ntohs(cliAddr1.sin_port), recvBuff);
 
         // keep name and birthdate in tokens
         char *token = strtok(recvBuff, " ");
@@ -133,20 +132,20 @@ int main(int argc, char *argv[])
         }
 
         // print name and surname
-        printf("name: %s %s\n", tokens[0], tokens[1]);
+        printf("Name: %s %s\n", tokens[0], tokens[1]);
 
         // get birth date and convert to A.D.
         char birthdate[9];
         strcpy(birthdate, tokens[2]);
         birthdate[8] = '\0';
-        printf("birthdate: %s\n", birthdate);
+        // printf("birthdate: %s\n", birthdate);
 
         char year_char[5];
         strcpy(year_char, birthdate + 4);
 
         int year_int = atoi(year_char);
         year_int = year_int - 543; // convert to A.D.
-        printf("year: %i\n", year_int);
+        // printf("year: %i\n", year_int);
         /* -------------------------------------------------------------------------- */
 
         /* ------------------------- send response to client ------------------------ */
@@ -155,20 +154,20 @@ int main(int argc, char *argv[])
         // send "Server received" to port1
         strcpy(sendBuff, "Server received");
         rc = send(newSd1, sendBuff, sizeof(sendBuff), 0);
-        printf("'%s' was sent\n", sendBuff);
+        // printf("'%s' was sent\n", sendBuff);
 
         memset(sendBuff, 0, sizeof(sendBuff));
 
         // send converted year to port2
         sprintf(sendBuff, "%i", year_int);
         rc = send(newSd2, sendBuff, sizeof(sendBuff), 0);
-        printf("'%s' was sent\n", sendBuff);
+        // printf("'%s' was sent\n", sendBuff);
         /* -------------------------------------------------------------------------- */
 
         /* ------------------------ received "bye" from client ----------------------- */
         // received from port2
         strcpy(recvBuff, read_client(newSd2));
-        printf("'%s' was received\n", recvBuff);
+        printf("Message from client: '%s'\n", recvBuff);
         /* -------------------------------------------------------------------------- */
 
         close(newSd1);

@@ -99,7 +99,7 @@ int main(int argc, char *argv[])
 
     // send sendBuffer to server //
     rc = send(sd1, sendBuff, strlen(sendBuff), 0);
-    printf("data sent: %s\n", sendBuff);
+    // printf("data sent: %s\n", sendBuff);
     /* -------------------------------------------------------------------------- */
 
     /* ---------------------- received messages from server ---------------------- */
@@ -110,7 +110,7 @@ int main(int argc, char *argv[])
         printf("Error receiving response from server\n");
         exit(1);
     }
-    printf("Received from server1: '%s'\n", recvBuff);
+    printf("Message from server: '%s'\n", recvBuff);
 
     // read year from port2
     strcpy(recvBuff, read_server(sd2));
@@ -119,7 +119,7 @@ int main(int argc, char *argv[])
         printf("Error receiving response from server\n");
         exit(1);
     }
-    printf("Received from server2: '%s'\n", recvBuff);
+    printf("Year from server: '%s'\n", recvBuff);
     /* -------------------------------------------------------------------------- */
 
     /* ------------------------------- send "bye" ------------------------------- */
@@ -128,7 +128,7 @@ int main(int argc, char *argv[])
     // send sendBuffer to server port2 //
     strcat(sendBuff, "Bye");
     rc = send(sd2, sendBuff, strlen(sendBuff), 0);
-    printf("data sent: %s\n", sendBuff);
+    // printf("data sent: %s\n", sendBuff);
     /* -------------------------------------------------------------------------- */
 
     close(sd1);
